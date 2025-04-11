@@ -42,7 +42,8 @@ const updateHttpResourceBodySchema = z
         isBaseDomain: z.boolean().optional(),
         applyRules: z.boolean().optional(),
         domainId: z.string().optional(),
-        enabled: z.boolean().optional()
+        enabled: z.boolean().optional(),
+        stickySession: z.boolean().optional()
     })
     .strict()
     .refine((data) => Object.keys(data).length > 0, {

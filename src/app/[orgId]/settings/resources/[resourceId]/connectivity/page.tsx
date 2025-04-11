@@ -94,6 +94,7 @@ export default function ReverseProxyTargets(props: {
     const [site, setSite] = useState<GetSiteResponse>();
     const [targetsToRemove, setTargetsToRemove] = useState<number[]>([]);
     const [sslEnabled, setSslEnabled] = useState(resource.ssl);
+    const [stickySession, setStickySession] = useState(resource.stickySession);
 
     const [loading, setLoading] = useState(false);
 
@@ -317,6 +318,35 @@ export default function ReverseProxyTargets(props: {
         }
     }
 
+    async function saveStickySession(val: boolean) {
+        const res = await api
+            .post(`/resource/${params.resourceId}`, {
+                stickySession: val
+            })
+            .catch((err) => {
+                console.error(err);
+                toast({
+                    variant: "destructive",
+                    title: "Failed to update sticky session configuration",
+                    description: formatAxiosError(
+                        err,
+                        "An error occurred while updating the sticky session configuration"
+                    )
+                });
+            });
+
+        if (res && res.status === 200) {
+            setStickySession(val);
+            updateResource({ stickySession: val });
+
+            toast({
+                title: "Sticky Session Configuration",
+                description: "Sticky session configuration updated successfully"
+            });
+            router.refresh();
+        }
+    }
+
     const columns: ColumnDef<LocalTarget>[] = [
         {
             accessorKey: "ip",
@@ -456,13 +486,22 @@ export default function ReverseProxyTargets(props: {
                 <SettingsSection>
                     <SettingsSectionHeader>
                         <SettingsSectionTitle>
-                            SSL Configuration
+                            Advanced Configuration
                         </SettingsSectionTitle>
                         <SettingsSectionDescription>
-                            Set up SSL to secure your connections with certificates
+                            Configure advanced settings for your resource
                         </SettingsSectionDescription>
                     </SettingsSectionHeader>
                     <SettingsSectionBody>
+                        <SwitchInput
+                            id="sticky-toggle"
+                            label="Enable Sticky Sessions"
+                            description="Keep users on the same backend target for their entire session. Useful for applications like VNC that require persistent connections."
+                            defaultChecked={resource.stickySession}
+                            onCheckedChange={async (val) => {
+                                await saveStickySession(val);
+                            }}
+                        />
                         <SwitchInput
                             id="ssl-toggle"
                             label="Enable SSL (https)"

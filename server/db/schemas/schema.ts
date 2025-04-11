@@ -77,7 +77,10 @@ export const resources = sqliteTable("resources", {
     applyRules: integer("applyRules", { mode: "boolean" })
         .notNull()
         .default(false),
-    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true)
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+    stickySession: integer("stickySession", { mode: "boolean" })
+        .notNull()
+        .default(false)
 });
 
 export const targets = sqliteTable("targets", {

@@ -40,7 +40,8 @@ export async function traefikConfigProvider(
                     org: {
                         orgId: orgs.orgId
                     },
-                    enabled: resources.enabled
+                    enabled: resources.enabled,
+                    stickySession: resources.stickySession
                 })
                 .from(resources)
                 .innerJoin(sites, eq(sites.siteId, resources.siteId))
@@ -275,7 +276,18 @@ export async function traefikConfigProvider(
                                         url: `${target.method}://${ip}:${target.internalPort}`
                                     };
                                 }
-                            })
+                            }),
+                        ...(resource.stickySession
+                            ? {
+                                  sticky: {
+                                      cookie: {
+                                          name: "pangolin_sticky",
+                                          secure: resource.ssl,
+                                          httpOnly: true
+                                      }
+                                  }
+                              }
+                            : {})
                     }
                 };
             } else {
@@ -335,7 +347,18 @@ export async function traefikConfigProvider(
                                         address: `${ip}:${target.internalPort}`
                                     };
                                 }
-                            })
+                            }),
+                        ...(resource.stickySession
+                            ? {
+                                  sticky: {
+                                      cookie: {
+                                          name: "pangolin_sticky",
+                                          secure: resource.ssl,
+                                          httpOnly: true
+                                      }
+                                  }
+                              }
+                            : {})
                     }
                 };
             }
